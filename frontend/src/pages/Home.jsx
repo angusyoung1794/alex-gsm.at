@@ -10,17 +10,50 @@ const Home = () => {
   const [fogOpacity, setFogOpacity] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentVideo, setCurrentVideo] = useState({ url: '', title: '' });
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imageOpacity, setImageOpacity] = useState(0);
+  const [initialAnimationDone, setInitialAnimationDone] = useState(false);
+
+  // Array of portrait images for carousel
+  // Add '/thoughtful_portret.jpeg' when you upload that file
+  const portraits = [
+    '/main_page.jpg',
+    '/indicates-portret.jpeg'
+  ];
 
   const isMobile = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
   };
 
+  // Initial fog animation
   useEffect(() => {
     const timer = setTimeout(() => {
       setFogOpacity(0);
+      setImageOpacity(1);
+      // Mark initial animation as done after fog clears
+      setTimeout(() => {
+        setInitialAnimationDone(true);
+      }, 1000);
     }, 500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Carousel effect - change image every 2 seconds after initial animation
+  useEffect(() => {
+    if (!initialAnimationDone) return;
+
+    const interval = setInterval(() => {
+      setImageOpacity(0); // Fade out
+      
+      setTimeout(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % portraits.length);
+        setImageOpacity(1); // Fade in
+      }, 500); // Wait for fade out to complete
+      
+    }, 2500); // Change every 2.5 seconds (2s display + 0.5s transition)
+
+    return () => clearInterval(interval);
+  }, [initialAnimationDone, portraits.length]);
 
   const handleMakeOffer = () => {
     const subject = language === 'de' ? 'Angebot machen' : 'Do an offer';
@@ -51,22 +84,24 @@ const Home = () => {
 
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="max-w-5xl mx-auto">
-          {/* Portrait */}
+          {/* Portrait Carousel */}
           <div className="relative mb-12 flex justify-center">
             <div className="relative">
               <img
-                src="/main_page.jpg"
+                src={portraits[currentImageIndex]}
                 alt="Aleksei Bespechnyi"
-                className="w-96 h-96 object-cover rounded-full shadow-2xl shadow-gray-500/20 transition-all duration-1000"
+                className="w-96 h-96 object-cover rounded-full shadow-2xl shadow-pink-500/20 transition-all duration-500"
                 style={{
                   filter: `blur(${fogOpacity * 8}px)`,
-                  opacity: 1 - (fogOpacity * 0.5),
+                  opacity: imageOpacity,
                 }}
               />
               <div 
                 className="absolute inset-0 rounded-full bg-gradient-to-b from-white/40 via-gray-300/30 to-transparent transition-opacity duration-2000 pointer-events-none"
                 style={{ opacity: fogOpacity }}
               />
+              {/* Glow effect */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 blur-2xl animate-pulse" />
             </div>
           </div>
 
@@ -102,12 +137,12 @@ const Home = () => {
             </div>
           </div>
 
-          {/* CTA Button */}
+          {/* CTA Button - Pink gradient like other pages */}
           <div className="flex justify-center mb-12">
             <Button
               onClick={handleMakeOffer}
               size="lg"
-              className="bg-white hover:bg-gray-100 text-black px-12 py-6 text-xl font-bold rounded-full shadow-2xl shadow-white/20 hover:shadow-white/40 transition-all duration-300 hover:scale-105 border-0"
+              className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white px-12 py-6 text-xl font-bold rounded-full shadow-2xl shadow-pink-500/30 hover:shadow-pink-500/50 transition-all duration-300 hover:scale-105 border-0"
             >
               <Mail className="w-6 h-6 mr-3" />
               {t('makeOffer')}
@@ -115,14 +150,14 @@ const Home = () => {
           </div>
 
           {/* Promo Section */}
-          <div className="bg-slate-900/50 backdrop-blur-md border border-gray-700 rounded-2xl p-8 max-w-4xl mx-auto">
+          <div className="bg-slate-900/50 backdrop-blur-md border border-pink-500/30 rounded-2xl p-8 max-w-4xl mx-auto">
             <div className="text-center space-y-6">
               <h3 className="text-2xl text-white font-bold mb-4">
                 {language === 'de' ? 'Video-Angebote' : 'Video Offers'}
               </h3>
               
               {/* Deutsch Video */}
-              <div className="bg-slate-800/50 border border-gray-700 rounded-xl p-4 mb-4 hover:border-gray-500 transition-all duration-300">
+              <div className="bg-slate-800/50 border border-pink-500/20 rounded-xl p-4 mb-4 hover:border-pink-500/40 transition-all duration-300">
                 <p className="text-sm md:text-base text-gray-300 mb-3">
                   {t('promoTextDeutsch')}
                 </p>
@@ -131,7 +166,7 @@ const Home = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => handleVideoClick(e, 'de', 'Deutsch')}
-                  className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-black border-0 transition-all duration-300 shadow-lg px-4 py-2 rounded-md text-sm font-medium"
+                  className="inline-flex items-center justify-center bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white border-0 transition-all duration-300 shadow-lg shadow-pink-500/20 hover:shadow-pink-500/40 px-4 py-2 rounded-md text-sm font-medium"
                   style={{ touchAction: 'manipulation' }}
                 >
                   <Play className="w-4 h-4 mr-2" />
@@ -140,7 +175,7 @@ const Home = () => {
               </div>
 
               {/* English Video */}
-              <div className="bg-slate-800/50 border border-gray-700 rounded-xl p-4 mb-4 hover:border-gray-500 transition-all duration-300">
+              <div className="bg-slate-800/50 border border-pink-500/20 rounded-xl p-4 mb-4 hover:border-pink-500/40 transition-all duration-300">
                 <p className="text-sm md:text-base text-gray-300 mb-3">
                   {t('promoTextEnglish')}
                 </p>
@@ -149,7 +184,7 @@ const Home = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => handleVideoClick(e, 'en', 'English')}
-                  className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-black border-0 transition-all duration-300 shadow-lg px-4 py-2 rounded-md text-sm font-medium"
+                  className="inline-flex items-center justify-center bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white border-0 transition-all duration-300 shadow-lg shadow-pink-500/20 hover:shadow-pink-500/40 px-4 py-2 rounded-md text-sm font-medium"
                   style={{ touchAction: 'manipulation' }}
                 >
                   <Play className="w-4 h-4 mr-2" />
@@ -158,7 +193,7 @@ const Home = () => {
               </div>
 
               {/* Español Video */}
-              <div className="bg-slate-800/50 border border-gray-700 rounded-xl p-4 mb-4 hover:border-gray-500 transition-all duration-300">
+              <div className="bg-slate-800/50 border border-pink-500/20 rounded-xl p-4 mb-4 hover:border-pink-500/40 transition-all duration-300">
                 <p className="text-sm md:text-base text-gray-300 mb-3">
                   {t('promoTextEspanol')}
                 </p>
@@ -167,7 +202,7 @@ const Home = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => handleVideoClick(e, 'es', 'Español')}
-                  className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-black border-0 transition-all duration-300 shadow-lg px-4 py-2 rounded-md text-sm font-medium"
+                  className="inline-flex items-center justify-center bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white border-0 transition-all duration-300 shadow-lg shadow-pink-500/20 hover:shadow-pink-500/40 px-4 py-2 rounded-md text-sm font-medium"
                   style={{ touchAction: 'manipulation' }}
                 >
                   <Play className="w-4 h-4 mr-2" />
@@ -176,7 +211,7 @@ const Home = () => {
               </div>
 
               {/* Chinese Video */}
-              <div className="bg-slate-800/50 border border-gray-700 rounded-xl p-4 hover:border-gray-500 transition-all duration-300">
+              <div className="bg-slate-800/50 border border-pink-500/20 rounded-xl p-4 hover:border-pink-500/40 transition-all duration-300">
                 <p className="text-sm md:text-base text-gray-300 mb-3">
                   {t('promoTextChinese')}
                 </p>
@@ -185,7 +220,7 @@ const Home = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => handleVideoClick(e, 'zh', '中文')}
-                  className="inline-flex items-center justify-center bg-white hover:bg-gray-100 text-black border-0 transition-all duration-300 shadow-lg px-4 py-2 rounded-md text-sm font-medium"
+                  className="inline-flex items-center justify-center bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white border-0 transition-all duration-300 shadow-lg shadow-pink-500/20 hover:shadow-pink-500/40 px-4 py-2 rounded-md text-sm font-medium"
                   style={{ touchAction: 'manipulation' }}
                 >
                   <Play className="w-4 h-4 mr-2" />
