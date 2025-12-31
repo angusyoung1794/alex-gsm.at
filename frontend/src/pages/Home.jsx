@@ -50,7 +50,7 @@ const Home = () => {
         setImageOpacity(1); // Fade in
       }, 500); // Wait for fade out to complete
       
-    }, 2500); // Change every 2.5 seconds (2s display + 0.5s transition)
+    }, 5000); // Change every 5 seconds
 
     return () => clearInterval(interval);
   }, [initialAnimationDone, portraits.length]);
