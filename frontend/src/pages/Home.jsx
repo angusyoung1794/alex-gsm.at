@@ -15,9 +15,9 @@ const Home = () => {
   const [initialAnimationDone, setInitialAnimationDone] = useState(false);
 
   // Array of portrait images for carousel
-  // Add '/thoughtful_portret.jpeg' when you upload that file
   const portraits = [
     '/main_page.jpg',
+    '/thoughtful_portret.jpeg',
     '/indicates-portret.jpeg'
   ];
 
